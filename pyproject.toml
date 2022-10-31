@@ -1,0 +1,37 @@
+# pyproject.toml
+
+[build-system]
+requires = []
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py621"
+version = "1.0.0"
+description = "A downloader for e621.net with concurrency."
+readme = "README.md"
+authors = [{ name = "Real Python", email = "info@realpython.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["scraper", "downloader", "pipeline", "images"]
+
+dependencies = [
+    "pandas",
+    "requests",
+    "numpy",
+    "Pillow",
+]
+
+requires-python = ">=3.11"
+
+#[project.optional-dependencies]
+#dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
+
+[project.urls]
+Homepage = ""
+
+[project.entry-points.net]
+downloader = "py621.downloader:E621Downloader"
