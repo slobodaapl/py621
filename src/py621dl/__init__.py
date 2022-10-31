@@ -4,6 +4,9 @@ import logging
 import tomllib
 from importlib import resources
 
+from py621dl.downloader import E621Downloader
+from py621dl.reader import Reader
+
 
 def enable_logging(level: int = logging.INFO, /, *, filename: str = None):
     logger = logging.getLogger()
@@ -21,7 +24,7 @@ def enable_logging(level: int = logging.INFO, /, *, filename: str = None):
 
 logging.getLogger().disabled = True
 
-__version__ = "0.1a0.dev0"
+__version__ = "0.1a0.dev2"
 
 _cfg = tomllib.loads(resources.read_text("py621dl", "config.toml"))
 DATA_COLUMNS = ["id", "md5", "rating", "image_width", "image_height", "tag_string", "score", "is_deleted", "is_flagged"]

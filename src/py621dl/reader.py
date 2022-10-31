@@ -105,4 +105,7 @@ class Reader:
         return self
 
     def __next__(self):
-        return self.get_rows(self.batch_size)
+        try:
+            return self.get_rows(self.batch_size)
+        except StopIteration:
+            raise StopIteration

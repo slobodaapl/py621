@@ -2,11 +2,11 @@
 
 [project]
 name = "py621dl"
-version = "0.1a0.dev0"
+version = "0.1a0.dev2"
 description = "A downloader for e621.net with meant for iterability, using e621 db post exports, designed for deep learning."
 readme = "README.md"
 authors = [{ name = "APL", email = "slobodaapl@gmail.com" }]
-license = { file = "LICENSE" }
+license = { text = "GNU General Public License v3 (GPLv3)" }
 classifiers = [
     "Development Status :: 1 - Planning",
     "Intended Audience :: Developers",

@@ -23,25 +23,27 @@ class E621Downloader:
     def __next__(self) -> tuple[list[ndarray], list[str]]:
         images = []
         rows = []
+        try:
+            while len(images) < self.batch_size:
+                if images:
+                    logging.info(f"Retrying {self.batch_size - len(images)} images")
+                    batch = self.reader.get_rows(self.batch_size - len(images))
+                else:
+                    batch = next(self.reader)
 
-        while len(images) < self.batch_size:
-            if images:
-                logging.info(f"Retrying {self.batch_size - len(images)} images")
-                batch = self.reader.get_rows(self.batch_size - len(images))
-            else:
-                batch = next(self.reader)
+                images_async = [get_image(row['md5'], self.timeout, self.retries) for row in batch]
 
-            images_async = [get_image(row['md5'], self.timeout, self.retries) for row in batch]
+                images_temp = await asyncio.gather(*images_async)
+                exc = [e for e in images_temp if isinstance(e, Exception)]
+                img = {i: img for i, img in enumerate(images_temp) if isinstance(i, ndarray)}
 
-            images_temp = await asyncio.gather(*images_async)
-            exc = [e for e in images_temp if isinstance(e, Exception)]
-            img = {i: img for i, img in enumerate(images_temp) if isinstance(i, ndarray)}
+                if exc:
+                    exc = ExceptionGroup("One or more downloads failed", exc)
+                    logging.error(f'Failed to download images: {exc}\nAttempting to fill batch')
 
-            if exc:
-                exc = ExceptionGroup("One or more downloads failed", exc)
-                logging.error(f'Failed to download images: {exc}\nAttempting to fill batch')
+                images.extend(img.values())
+                rows.extend([batch[i] for i in img.keys()])
 
-            images.extend(img.values())
-            rows.extend([batch[i] for i in img.keys()])
-
-        return images, rows
+            return images, rows
+        except StopIteration:
+            raise StopIteration("No more rows to read")
