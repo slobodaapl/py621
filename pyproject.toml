@@ -1,21 +1,20 @@
 # pyproject.toml
 
-[build-system]
-requires = []
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "py621"
 version = "1.0.0"
 description = "A downloader for e621.net with concurrency."
 readme = "README.md"
-authors = [{ name = "Real Python", email = "info@realpython.com" }]
+authors = [{ name = "APL", email = "slobodaapl@gmail.com" }]
 license = { file = "LICENSE" }
 classifiers = [
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.11",
 ]
+
 keywords = ["scraper", "downloader", "pipeline", "images"]
 
 dependencies = [
@@ -23,15 +22,19 @@ dependencies = [
     "requests",
     "numpy",
     "Pillow",
+    "opencv-python"
 ]
 
 requires-python = ">=3.11"
-
-#[project.optional-dependencies]
-#dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
 
 [project.urls]
 Homepage = ""
 
 [project.entry-points.net]
 downloader = "py621.downloader:E621Downloader"
+
+[project.entry-points.reader]
+downloader = "py621.reader:E621Reader"
+
+[project.entry-points.setup]
+downloader = "py621.__init__:enable_logging"

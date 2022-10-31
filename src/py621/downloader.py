@@ -1,30 +1,47 @@
+# downloader.py
+
 import asyncio
+import logging
 
 from numpy import ndarray
 
+import py621.reader
 from py621.net import get_image
-from py621.reader import Reader
 
 
 class E621Downloader:
 
-    def __init__(self, csv_file, /, excluded_tags=None, minimum_score=5, *, chunk_size=2000, checkpoint_file=None):
-        self.reader = Reader(csv_file,
-                             excluded_tags=excluded_tags,
-                             minimum_score=minimum_score,
-                             chunk_size=chunk_size,
-                             checkpoint_file=checkpoint_file)
+    def __init__(self, csv_reader: py621.reader.Reader, /, *, timeout=5, retries=3):
+        self.reader = csv_reader
+        self.batch_size = self.reader.batch_size
+        self.timeout = timeout
+        self.retries = retries
 
     def __iter__(self):
         return self
 
     def __next__(self) -> tuple[list[ndarray], list[str]]:
-        batch = next(self.reader)
-        images_async = [get_image(row['md5']) for row in batch]
-        try:
-            #  TODO: Figure out exceptions for asyncio and IO
-            images = await asyncio.gather(*images_async)
-        except Exception as e:
-            raise e
+        images = []
+        rows = []
 
-        return images, [row['md5'] for row in batch]
+        while len(images) < self.batch_size:
+            if images:
+                logging.info(f"Retrying {self.batch_size - len(images)} images")
+                batch = self.reader.get_rows(self.batch_size - len(images))
+            else:
+                batch = next(self.reader)
+
+            images_async = [get_image(row['md5'], self.timeout, self.retries) for row in batch]
+
+            images_temp = await asyncio.gather(*images_async)
+            exc = [e for e in images_temp if isinstance(e, Exception)]
+            img = {i: img for i, img in enumerate(images_temp) if isinstance(i, ndarray)}
+
+            if exc:
+                exc = ExceptionGroup("One or more downloads failed", exc)
+                logging.error(f'Failed to download images: {exc}\nAttempting to fill batch')
+
+            images.extend(img.values())
+            rows.extend([batch[i] for i in img.keys()])
+
+        return images, rows
