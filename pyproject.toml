@@ -3,7 +3,7 @@
 [project]
 name = "py621"
 version = "1.0.0"
-description = "A downloader for e621.net with concurrency."
+description = "A downloader for e621.net with meant for iterability, using e621 db post exports."
 readme = "README.md"
 authors = [{ name = "APL", email = "slobodaapl@gmail.com" }]
 license = { file = "LICENSE" }
