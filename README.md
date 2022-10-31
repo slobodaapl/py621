@@ -13,6 +13,10 @@ and [here](https://e621.net/help/api) for general information on the API.
 
 Proper documentation, tests, and automated updates to the package will be added later.
 
+## Installation
+
+You can install the package using `pip install py621dl` on `python>=3.11`
+
 ## Usage
 
 The E621Downloader class must be initialized using the Reader class, to which
