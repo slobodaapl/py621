@@ -4,7 +4,7 @@ import json
 
 import pandas as pd
 
-from py621 import DATA_COLUMNS
+from py621dl import DATA_COLUMNS
 
 
 class Reader:

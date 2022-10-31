@@ -5,13 +5,13 @@ import logging
 
 from numpy import ndarray
 
-import py621.reader
-from py621.net import get_image
+import py621dl.reader
+from py621dl.net import get_image
 
 
 class E621Downloader:
 
-    def __init__(self, csv_reader: py621.reader.Reader, /, *, timeout=5, retries=3):
+    def __init__(self, csv_reader: py621dl.reader.Reader, /, *, timeout=5, retries=3):
         self.reader = csv_reader
         self.batch_size = self.reader.batch_size
         self.timeout = timeout

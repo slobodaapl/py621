@@ -9,7 +9,7 @@ import requests
 from PIL import Image, UnidentifiedImageError
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 
-from py621.exceptions import CVException
+from py621dl.exceptions import CVException
 
 
 async def get_image(md5, timeout=5, retries=3):

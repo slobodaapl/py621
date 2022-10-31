@@ -1,9 +1,9 @@
 # pyproject.toml
 
 [project]
-name = "py621"
-version = "1.0.0"
-description = "A downloader for e621.net with meant for iterability, using e621 db post exports."
+name = "py621dl"
+version = "0.1a0.dev0"
+description = "A downloader for e621.net with meant for iterability, using e621 db post exports, designed for deep learning."
 readme = "README.md"
 authors = [{ name = "APL", email = "slobodaapl@gmail.com" }]
 license = { file = "LICENSE" }
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 
-keywords = ["scraper", "downloader", "pipeline", "images"]
+keywords = ["scraper", "downloader", "images"]
 
 dependencies = [
     "pandas",
@@ -31,10 +31,10 @@ requires-python = ">=3.11"
 Homepage = ""
 
 [project.entry-points.net]
-downloader = "py621.downloader:E621Downloader"
+downloader = "py621dl.downloader:E621Downloader"
 
 [project.entry-points.reader]
-downloader = "py621.reader:E621Reader"
+downloader = "py621dl.reader:E621Reader"
 
 [project.entry-points.setup]
-downloader = "py621.__init__:enable_logging"
+downloader = "py621dl.__init__:enable_logging"
