@@ -1,12 +1,14 @@
 # pyproject.toml
 
-[project]
+[tool.poetry]
 name = "py621dl"
-version = "0.1a0.dev2"
+version = "0.1a0.dev3"
 description = "A downloader for e621.net with meant for iterability, using e621 db post exports, designed for deep learning."
+authors = ["slobodaapl <slobodaapl@gmail.com>"]
+homepage = "https://pypi.org/project/py621dl"
+repository = "https://github.com/slobodaapl/py621dl"
+license = "GPL-3.0-or-later"
 readme = "README.md"
-authors = [{ name = "APL", email = "slobodaapl@gmail.com" }]
-license = { text = "GNU General Public License v3 (GPLv3)" }
 classifiers = [
     "Development Status :: 1 - Planning",
     "Intended Audience :: Developers",
@@ -15,20 +17,28 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 
-keywords = ["scraper", "downloader", "images"]
+[tool.poetry.dependencies]
+python = ">=3.11"
+pandas = "*"
+requests = "*"
+numpy = "*"
+Pillow = "*"
+opencv-python = "*"
 
-dependencies = [
-    "pandas",
-    "requests",
-    "numpy",
-    "Pillow",
-    "opencv-python"
-]
+[tool.poetry.group.dev.dependencies]
+pytest-socket = "*"
+pytest-cov = "*"
+pytest = "*"
+pytest-dependency = "*"
+pytest-order = "*"
 
-requires-python = ">=3.11"
 
-[project.urls]
-Homepage = "https://github.com/slobodaapl/py621dl"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "--disable-socket --allow-unix-socket"
 
 [project.entry-points.net]
 downloader = "py621dl.downloader:E621Downloader"

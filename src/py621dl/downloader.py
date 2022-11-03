@@ -1,9 +1,11 @@
 # downloader.py
 
-import asyncio
+import functools
 import logging
+import multiprocessing
 
 from numpy import ndarray
+from pandas import Series
 
 import py621dl.reader
 from py621dl.net import get_image
@@ -20,7 +22,7 @@ class E621Downloader:
     def __iter__(self):
         return self
 
-    def __next__(self) -> tuple[list[ndarray], list[str]]:
+    def __next__(self) -> tuple[list[ndarray], list[Series]]:
         images = []
         rows = []
         try:
@@ -31,11 +33,20 @@ class E621Downloader:
                 else:
                     batch = next(self.reader)
 
-                images_async = [get_image(row['md5'], self.timeout, self.retries) for row in batch]
+                if self.batch_size > 2:
+                    with multiprocessing.Pool(processes=min(multiprocessing.cpu_count(), self.batch_size)) as pool:
+                        images_temp = pool.map_async(
+                            functools.partial(get_image, timeout=self.timeout, retries=self.retries),
+                            [row['md5'] for row in batch]
+                        )
 
-                images_temp = await asyncio.gather(*images_async)
+                        images_temp.wait()
+                        images_temp = images_temp.get()
+                else:
+                    images_temp = [get_image(row['md5'], timeout=self.timeout, retries=self.retries) for row in batch]
+
                 exc = [e for e in images_temp if isinstance(e, Exception)]
-                img = {i: img for i, img in enumerate(images_temp) if isinstance(i, ndarray)}
+                img = {i: img for i, img in enumerate(images_temp) if isinstance(img, ndarray)}
 
                 if exc:
                     exc = ExceptionGroup("One or more downloads failed", exc)
