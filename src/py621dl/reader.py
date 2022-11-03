@@ -1,10 +1,11 @@
 # reader.py
 
 import json
+from os.path import exists
 
 import pandas as pd
 
-from py621dl import DATA_COLUMNS
+DATA_COLUMNS = ["id", "md5", "rating", "image_width", "image_height", "tag_string", "score", "is_deleted", "is_flagged"]
 
 
 class Reader:
@@ -19,7 +20,7 @@ class Reader:
         self.__minimum_score = minimum_score
 
         self.__df_buffered = pd.read_csv(csv_file, chunksize=chunk_size, usecols=DATA_COLUMNS, iterator=True)
-        self.__chunk_iter = iter(self.__chunk_gen())
+        self.__chunk_iter = None
         self.__row_iter = None
 
         self.__chunk_idx = None
@@ -45,27 +46,36 @@ class Reader:
                         if self.__checkpoint_file is not None:
                             with open(self.__checkpoint_file, 'w') as f:
                                 json.dump([0, 0], f)
-                        self.__init()
-                        batch.append(next(self.__row_iter))
+                        self.__init(repeat_init=True)
+                        continue
                     else:
                         raise StopIteration
                 else:
                     self.__row_iter = iter(self.__row_gen(chunk))
-                    batch.append(next(self.__row_iter))
+                    continue
         self.__save_checkpoint()
         return batch
 
-    def __init(self):
+    def get_row_idx(self):
+        return self.__row_idx
+
+    def get_chunk_idx(self):
+        return self.__chunk_idx
+
+    def __init(self, repeat_init=False):
+        self.__chunk_iter = iter(self.__chunk_gen())
         # check if checkpoint is None, if not try loading it as json
-        if self.__checkpoint_file is not None:
+        if self.__checkpoint_file is not None and exists(self.__checkpoint_file) and not repeat_init:
             with open(self.__checkpoint_file, 'r') as f:
                 chunk_idx_skip, row_idx_skip = json.load(f)
 
+            self.__chunk_idx, chunk = next(self.__chunk_iter)
+            self.__row_idx = 0
+
             # skip chunks
             while self.__chunk_idx < chunk_idx_skip:
-                self.__chunk_idx, _ = next(self.__chunk_iter)
+                self.__chunk_idx, chunk = next(self.__chunk_iter)
 
-            self.__chunk_idx, chunk = next(self.__chunk_iter)
             self.__row_iter = iter(self.__row_gen(chunk))
 
             # skip rows
@@ -95,7 +105,8 @@ class Reader:
 
     def __is_row_invalid(self, row):
         is_invalid = False
-        is_invalid |= self.__excluded_tags and self.__excluded_tags.intersection(row['tag_string'].split()) != set()
+        is_invalid |= bool(self.__excluded_tags) and self.__excluded_tags.intersection(
+            row['tag_string'].split()) != set()
         is_invalid |= self.__minimum_score > row['score']
         is_invalid |= row['is_deleted'] == 't'
         is_invalid |= row['is_flagged'] == 't'
