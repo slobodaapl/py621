@@ -24,7 +24,6 @@ def enable_logging(level: int = logging.INFO, /, *, filename: str = None):
 
 logging.getLogger().disabled = True
 
-__version__ = "0.1a0.dev2"
 resource_folder = resources.files("py621dl")
 
 _cfg = tomllib.loads(resource_folder.joinpath("config.toml").read_text())

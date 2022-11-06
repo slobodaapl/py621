@@ -5,19 +5,30 @@ from os.path import exists
 
 import pandas as pd
 
+from py621dl.exceptions import InvalidRatingException, InvalidScoreException
+
 DATA_COLUMNS = ["id", "md5", "rating", "image_width", "image_height", "tag_string", "score", "is_deleted", "is_flagged"]
 
 
 class Reader:
 
-    def __init__(self, csv_file, /, batch_size=2, excluded_tags=None, minimum_score=10, *, chunk_size=2000,
-                 checkpoint_file=None, repeat=True):
+    def __init__(self, csv_file,
+                 /, batch_size=2, excluded_tags=None, minimum_score=None, rating=None,
+                 *, chunk_size=2000, checkpoint_file=None, repeat=True):
+
+        if rating is not None and (type(rating) is not str or rating not in 'sqe'):
+            raise InvalidRatingException(rating)
+
+        if minimum_score is not None and type(minimum_score) is not int:
+            raise InvalidScoreException()
+
         self.__csv = csv_file
         self.__checkpoint_file = checkpoint_file
         self.__repeat = repeat
 
         self.__excluded_tags = frozenset(excluded_tags) if excluded_tags is not None else None
         self.__minimum_score = minimum_score
+        self.__rating = rating
 
         self.__df_buffered = pd.read_csv(csv_file, chunksize=chunk_size, usecols=DATA_COLUMNS, iterator=True)
         self.__chunk_iter = None
@@ -107,9 +118,15 @@ class Reader:
         is_invalid = False
         is_invalid |= bool(self.__excluded_tags) and self.__excluded_tags.intersection(
             row['tag_string'].split()) != set()
-        is_invalid |= self.__minimum_score > row['score']
         is_invalid |= row['is_deleted'] == 't'
         is_invalid |= row['is_flagged'] == 't'
+
+        if self.__minimum_score is not None:
+            is_invalid |= self.__minimum_score > row['score']
+
+        if self.__rating is not None:
+            is_invalid |= self.__rating != row['rating']
+
         return is_invalid
 
     def __iter__(self):

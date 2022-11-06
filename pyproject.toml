@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "py621dl"
-version = "0.1a0.dev3"
+version = "0.1a1.dev0"
 description = "A downloader for e621.net with meant for iterability, using e621 db post exports, designed for deep learning."
 authors = ["slobodaapl <slobodaapl@gmail.com>"]
 homepage = "https://pypi.org/project/py621dl"
