@@ -63,3 +63,16 @@ for batch in downloader:
     # do something with the batch
     pass
 ```
+
+# Contributing
+
+For any opened issues, please create a linked branch for that issue and create pull requests into the **test branch** for completed edits.
+
+To get started with contribution to this repository, you will need [Python 3.11](https://www.python.org/downloads/release/python-3110/) and [Poetry](https://python-poetry.org/). After that, simply navigate to a folder into which you have cloned this repository, and do the following:
+
+```bash
+poetry use 3.11
+poetry install --with dev
+```
+
+Note that python 3.11 will need to be in your PATH for it to `poetry use 3.11` to work. Otherwise refer to [Poetry documentation](https://python-poetry.org/docs/managing-environments/).
