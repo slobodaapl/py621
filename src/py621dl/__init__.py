@@ -5,8 +5,6 @@ import tomllib
 from importlib import resources
 from typing import Union
 
-from py621dl.downloader import E621Downloader
-from py621dl.reader import Reader
 
 # Constants
 __NUMERIC = Union[int, float]
@@ -40,3 +38,9 @@ def enable_logging(
     handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     handler.setLevel(level)
     logger.addHandler(handler)
+
+
+# Module imports
+
+from py621dl.downloader import E621Downloader
+from py621dl.reader import Reader
