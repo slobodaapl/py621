@@ -10,14 +10,14 @@ import requests
 from PIL import Image, UnidentifiedImageError
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 
-from py621dl import __NUMERIC
+from py621dl import __NUMERIC as NUMERIC
 from py621dl.exceptions import CVException
 
 
 # noinspection PyTypeChecker, PyUnresolvedReferences
 def get_image(md5: str,
               /,
-              timeout: __NUMERIC | Tuple[__NUMERIC, __NUMERIC] = 5,
+              timeout: NUMERIC | Tuple[NUMERIC, NUMERIC] = 5,
               retries: int = 3,
               *,
               __is_test_target: bool = False
@@ -54,7 +54,7 @@ def get_image(md5: str,
 
 
 def download_image_as_bytes(url: str,
-                            timeout: __NUMERIC | Tuple[__NUMERIC, __NUMERIC] = 5,
+                            timeout: NUMERIC | Tuple[NUMERIC, NUMERIC] = 5,
                             retries: int = 3):
     exc = None
     for i in range(retries):

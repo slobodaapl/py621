@@ -10,6 +10,7 @@ from numpy import ndarray
 from pandas import Series
 
 import py621dl.reader
+from py621dl import __NUMERIC as NUMERIC
 from py621dl.net import get_image
 
 
@@ -19,7 +20,7 @@ class E621Downloader:
                  csv_reader: py621dl.reader.Reader,
                  /,
                  *,
-                 timeout: __NUMERIC | Tuple[__NUMERIC, __NUMERIC] = 5,
+                 timeout: NUMERIC | Tuple[NUMERIC, NUMERIC] = 5,
                  retries: int = 3):
 
         self.reader = csv_reader
