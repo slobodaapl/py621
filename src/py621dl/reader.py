@@ -4,9 +4,11 @@ from __future__ import annotations
 import json
 from os import PathLike
 from os.path import exists
-from typing import Set, List, Tuple
+from typing import Set, List, Tuple, Literal
 
 import pandas as pd
+
+from py621dl.exceptions import InvalidRatingException, InvalidScoreException
 
 DATA_COLUMNS = ["id", "md5", "rating", "image_width", "image_height", "tag_string", "score", "is_deleted", "is_flagged"]
 
@@ -18,12 +20,19 @@ class Reader:
                  /,
                  batch_size: int = 2,
                  excluded_tags: Set[str] | List[str] | Tuple[str] = None,
-                 minimum_score: int = 10,
+                 minimum_score: int = None,
+                 rating: Literal['s', 'q', 'e'] = None,
                  *,
                  chunk_size: int = 2000,
                  checkpoint_file: PathLike[str] | str = None,
                  repeat: bool = True
                  ):
+                 
+        if rating is not None and (type(rating) is not str or rating not in 'sqe'):
+            raise InvalidRatingException(rating)
+
+        if minimum_score is not None and type(minimum_score) is not int:
+            raise InvalidScoreException()
 
         self.__csv = csv_file
         self.__checkpoint_file = checkpoint_file
@@ -31,6 +40,7 @@ class Reader:
 
         self.__excluded_tags = frozenset(excluded_tags) if excluded_tags is not None else None
         self.__minimum_score = minimum_score
+        self.__rating = rating
 
         self.__df_buffered = pd.read_csv(csv_file, chunksize=chunk_size, usecols=DATA_COLUMNS, iterator=True)
         self.__chunk_iter = None
@@ -120,9 +130,15 @@ class Reader:
         is_invalid = False
         is_invalid |= bool(self.__excluded_tags) and self.__excluded_tags.intersection(
             row['tag_string'].split()) != set()
-        is_invalid |= self.__minimum_score > row['score']
         is_invalid |= row['is_deleted'] == 't'
         is_invalid |= row['is_flagged'] == 't'
+
+        if self.__minimum_score is not None:
+            is_invalid |= self.__minimum_score > row['score']
+
+        if self.__rating is not None:
+            is_invalid |= self.__rating != row['rating']
+
         return is_invalid
 
     def __iter__(self) -> Reader:

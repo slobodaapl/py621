@@ -19,7 +19,6 @@ resource_folder = resources.files("py621dl")
 
 _cfg = tomllib.loads(resource_folder.joinpath("config.toml").read_text())
 
-
 # Functions
 
 
@@ -28,7 +27,8 @@ def enable_logging(
         /,
         *,
         filename: str = None
-):
+        ):
+
     logger = logging.getLogger()
     logger.disabled = False
 
