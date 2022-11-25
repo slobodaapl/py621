@@ -1,7 +1,10 @@
 # reader.py
+from __future__ import annotations
 
 import json
+from os import PathLike
 from os.path import exists
+from typing import Set, List, Tuple, Literal
 
 import pandas as pd
 
@@ -12,10 +15,19 @@ DATA_COLUMNS = ["id", "md5", "rating", "image_width", "image_height", "tag_strin
 
 class Reader:
 
-    def __init__(self, csv_file,
-                 /, batch_size=2, excluded_tags=None, minimum_score=None, rating=None,
-                 *, chunk_size=2000, checkpoint_file=None, repeat=True):
-
+    def __init__(self,
+                 csv_file: PathLike[str] | str,
+                 /,
+                 batch_size: int = 2,
+                 excluded_tags: Set[str] | List[str] | Tuple[str] = None,
+                 minimum_score: int = None,
+                 rating: Literal['s', 'q', 'e'] = None,
+                 *,
+                 chunk_size: int = 2000,
+                 checkpoint_file: PathLike[str] | str = None,
+                 repeat: bool = True
+                 ):
+                 
         if rating is not None and (type(rating) is not str or rating not in 'sqe'):
             raise InvalidRatingException(rating)
 
@@ -41,7 +53,7 @@ class Reader:
 
         self.__init()
 
-    def get_rows(self, n_rows=1):
+    def get_rows(self, n_rows: int = 1) -> List[pd.Series]:
         batch = []
         while len(batch) < n_rows:
             try:
@@ -67,13 +79,13 @@ class Reader:
         self.__save_checkpoint()
         return batch
 
-    def get_row_idx(self):
+    def get_row_idx(self) -> int:
         return self.__row_idx
 
-    def get_chunk_idx(self):
+    def get_chunk_idx(self) -> int:
         return self.__chunk_idx
 
-    def __init(self, repeat_init=False):
+    def __init(self, repeat_init: bool = False) -> None:
         self.__chunk_iter = iter(self.__chunk_gen())
         # check if checkpoint is None, if not try loading it as json
         if self.__checkpoint_file is not None and exists(self.__checkpoint_file) and not repeat_init:
@@ -97,11 +109,11 @@ class Reader:
             self.__chunk_idx, self.chunk = next(self.__chunk_iter)
             self.__row_iter = iter(self.__row_gen(self.chunk))
 
-    def __chunk_gen(self):
+    def __chunk_gen(self) -> Tuple[int, pd.DataFrame]:
         for chunk_idx, chunk in enumerate(self.__df_buffered):
             yield chunk_idx, chunk
 
-    def __row_gen(self, chunk):
+    def __row_gen(self, chunk: pd.DataFrame) -> Tuple[int, pd.Series]:
         for row_idx, row in chunk.iterrows():
 
             if self.__is_row_invalid(row):
@@ -109,12 +121,12 @@ class Reader:
 
             yield row_idx, row
 
-    def __save_checkpoint(self):
+    def __save_checkpoint(self) -> None:
         if self.__checkpoint_file is not None:
             with open(self.__checkpoint_file, 'w') as f:
                 json.dump([self.__chunk_idx, self.__row_idx], f)
 
-    def __is_row_invalid(self, row):
+    def __is_row_invalid(self, row: pd.Series) -> bool:
         is_invalid = False
         is_invalid |= bool(self.__excluded_tags) and self.__excluded_tags.intersection(
             row['tag_string'].split()) != set()
@@ -129,10 +141,10 @@ class Reader:
 
         return is_invalid
 
-    def __iter__(self):
+    def __iter__(self) -> Reader:
         return self
 
-    def __next__(self):
+    def __next__(self) -> List[pd.Series]:
         try:
             return self.get_rows(self.batch_size)
         except StopIteration:

@@ -3,12 +3,32 @@
 import logging
 import tomllib
 from importlib import resources
+from typing import Union
 
 from py621dl.downloader import E621Downloader
 from py621dl.reader import Reader
 
+# Constants
+__NUMERIC = Union[int, float]
 
-def enable_logging(level: int = logging.INFO, /, *, filename: str = None):
+# Setup
+logging.getLogger().disabled = True
+
+__version__ = "0.1a0.dev2"
+resource_folder = resources.files("py621dl")
+
+_cfg = tomllib.loads(resource_folder.joinpath("config.toml").read_text())
+
+# Functions
+
+
+def enable_logging(
+        level: int = logging.INFO,
+        /,
+        *,
+        filename: str = None
+        ):
+
     logger = logging.getLogger()
     logger.disabled = False
 
@@ -20,10 +40,3 @@ def enable_logging(level: int = logging.INFO, /, *, filename: str = None):
     handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     handler.setLevel(level)
     logger.addHandler(handler)
-
-
-logging.getLogger().disabled = True
-
-resource_folder = resources.files("py621dl")
-
-_cfg = tomllib.loads(resource_folder.joinpath("config.toml").read_text())

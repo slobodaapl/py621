@@ -1,8 +1,10 @@
 # downloader.py
+from __future__ import annotations
 
 import functools
 import logging
 import multiprocessing
+from typing import Tuple
 
 from numpy import ndarray
 from pandas import Series
@@ -13,13 +15,19 @@ from py621dl.net import get_image
 
 class E621Downloader:
 
-    def __init__(self, csv_reader: py621dl.reader.Reader, /, *, timeout=5, retries=3):
+    def __init__(self,
+                 csv_reader: py621dl.reader.Reader,
+                 /,
+                 *,
+                 timeout: __NUMERIC | Tuple[__NUMERIC, __NUMERIC] = 5,
+                 retries: int = 3):
+
         self.reader = csv_reader
         self.batch_size = self.reader.batch_size
         self.timeout = timeout
         self.retries = retries
 
-    def __iter__(self):
+    def __iter__(self) -> E621Downloader:
         return self
 
     def __next__(self) -> tuple[list[ndarray], list[Series]]:
