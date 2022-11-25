@@ -5,7 +5,7 @@ from py621dl import E621Downloader, Reader
 
 @pytest.mark.parametrize("batch_size", [2, 3])
 @pytest.mark.enable_socket
-def test_downloader(batch_size):
+def test_downloader(batch_size: int):
     reader = Reader("resources/test_chunk.csv", batch_size=batch_size, chunk_size=3, repeat=True)
     assert reader == iter(reader) is not None
 

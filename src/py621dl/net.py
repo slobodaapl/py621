@@ -2,6 +2,7 @@
 
 import io
 import logging
+from typing import Tuple, Union
 
 import cv2
 import numpy as np
@@ -9,11 +10,18 @@ import requests
 from PIL import Image, UnidentifiedImageError
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 
+from py621dl import __NUMERIC
 from py621dl.exceptions import CVException
 
 
 # noinspection PyTypeChecker, PyUnresolvedReferences
-def get_image(md5, /, timeout=5, retries=3, *, __is_test_target=False):
+def get_image(md5: str,
+              /,
+              timeout: __NUMERIC | Tuple[__NUMERIC, __NUMERIC] = 5,
+              retries: int = 3,
+              *,
+              __is_test_target: bool = False
+              ) -> Union[Image.Image, Exception]:
     url = construct_e621_img_link(md5)
 
     if url == "test":
@@ -45,7 +53,9 @@ def get_image(md5, /, timeout=5, retries=3, *, __is_test_target=False):
     return img
 
 
-def download_image_as_bytes(url, timeout=5, retries=3):
+def download_image_as_bytes(url: str,
+                            timeout: __NUMERIC | Tuple[__NUMERIC, __NUMERIC] = 5,
+                            retries: int = 3):
     exc = None
     for i in range(retries):
         try:
@@ -64,7 +74,7 @@ def download_image_as_bytes(url, timeout=5, retries=3):
         return exc
 
 
-def construct_e621_img_link(post_md5):
+def construct_e621_img_link(post_md5: str):
     if post_md5 == "test":
         return post_md5
 

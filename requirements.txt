@@ -3,3 +3,4 @@ requests
 numpy
 Pillow
 opencv-python
+pytest
