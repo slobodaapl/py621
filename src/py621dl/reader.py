@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from os import PathLike
 from os.path import exists
-from typing import Set, List, Tuple, Literal
+from typing import Set, List, Tuple, Literal, Callable
 
 import pandas as pd
 
@@ -21,13 +21,15 @@ class Reader:
                  batch_size: int = 2,
                  excluded_tags: Set[str] | List[str] | Tuple[str] = None,
                  minimum_score: int = None,
-                 rating: Literal['s', 'q', 'e'] = None,
+                 rating: Literal['s', 'q', 'e', 'sq', 'se', 'qe', 'sqe'] = None,
                  *,
+                 columns: List[str] = None,
+                 df_transformer: Callable = None,
                  chunk_size: int = 2000,
                  checkpoint_file: PathLike[str] | str = None,
                  repeat: bool = True
                  ):
-                 
+
         if rating is not None and (type(rating) is not str or rating not in 'sqe'):
             raise InvalidRatingException(rating)
 
@@ -35,6 +37,8 @@ class Reader:
             raise InvalidScoreException()
 
         self.__csv = csv_file
+        self.__columns = columns if columns is not None else DATA_COLUMNS
+        self.__df_transformer = df_transformer
         self.__checkpoint_file = checkpoint_file
         self.__repeat = repeat
 
@@ -111,6 +115,9 @@ class Reader:
 
     def __chunk_gen(self) -> Tuple[int, pd.DataFrame]:
         for chunk_idx, chunk in enumerate(self.__df_buffered):
+            if self.__df_transformer is not None:
+                chunk = self.__df_transformer(chunk)
+
             yield chunk_idx, chunk
 
     def __row_gen(self, chunk: pd.DataFrame) -> Tuple[int, pd.Series]:

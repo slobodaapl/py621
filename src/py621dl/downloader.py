@@ -4,9 +4,9 @@ from __future__ import annotations
 import functools
 import logging
 import multiprocessing
-from typing import Tuple
+from typing import Tuple, Callable
 
-from numpy import ndarray
+from numpy import ndarray, array
 from pandas import Series
 
 import py621dl.reader
@@ -20,10 +20,12 @@ class E621Downloader:
                  csv_reader: py621dl.reader.Reader,
                  /,
                  *,
+                 image_transforms: Callable = None,
                  timeout: NUMERIC | Tuple[NUMERIC, NUMERIC] = 5,
                  retries: int = 3):
 
         self.reader = csv_reader
+        self.image_transforms = image_transforms
         self.batch_size = self.reader.batch_size
         self.timeout = timeout
         self.retries = retries
@@ -31,7 +33,7 @@ class E621Downloader:
     def __iter__(self) -> E621Downloader:
         return self
 
-    def __next__(self) -> tuple[list[ndarray], list[Series]]:
+    def __next__(self) -> tuple[ndarray, list[Series]]:
         images = []
         rows = []
         try:
@@ -64,6 +66,12 @@ class E621Downloader:
                 images.extend(img.values())
                 rows.extend([batch[i] for i in img.keys()])
 
+            images = array(images)
+
+            if self.image_transforms:
+                images = self.image_transforms(images)
+
             return images, rows
+
         except StopIteration:
             raise StopIteration("No more rows to read")
