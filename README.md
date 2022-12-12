@@ -78,3 +78,5 @@ poetry install --with dev
 Note that python 3.11 will need to be in your PATH for it to `poetry use 3.11` to work. Otherwise refer to [Poetry documentation](https://python-poetry.org/docs/managing-environments/).
 
 In order to write your own tests for new code (strongly recommended), you will need to run `pip install -e .` from the project folder, in order to install it locally based on the current state of the files, so that pytest may use this package as if it was properly installed on an end-user system, without the need to re-build and re-install it with every change you make.
+
+You can also use `pip install -e .` to insall the package locally, so you can simply use `import py621dl` and any changes in your cade will be instantly reflected while you debug the code.
