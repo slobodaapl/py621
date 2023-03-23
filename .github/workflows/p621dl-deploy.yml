@@ -26,7 +26,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
       - name: Install dependencies
-        run: poetry install
+        run: |
+          poetry install --with dev
+          pip install -e .
       - name: Test with Pytest
         run: poetry run pytest
       - name: Lint with flake8
@@ -51,7 +53,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
       - name: Install dependencies
-        run: poetry install
+        run: poetry install --with deploy
       - name: Prepare package for release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
