@@ -1,7 +1,6 @@
 # downloader.py
 from __future__ import annotations
 
-import functools
 import logging
 import threading
 from multiprocessing import cpu_count
@@ -36,8 +35,8 @@ class E621Downloader:
         self.img_list = []
         self.processing_queue = Queue()
         self.threads = [threading.Thread(
-                            target=self.worker(src_queue=self.processing_queue), daemon=True
-                        ) for _ in range(min(cpu_count(), self.batch_size)).start()]
+            target=self.worker, args=(self.processing_queue,), daemon=True
+        ).start() for _ in range(min(cpu_count(), self.batch_size))]
         
     def worker(self, src_queue: Queue) -> NoReturn:
         while True:

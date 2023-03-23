@@ -3,7 +3,6 @@
 import logging
 import tomllib
 from importlib import resources
-from setuptools import setup
 from typing import Union
 
 
@@ -15,11 +14,6 @@ logging.getLogger().disabled = True
 
 __version__ = "0.0.1"
 resource_folder = resources.files("py621dl")
-
-setup(
-    name="py621dl",
-    version=__version__,
-)
 
 _cfg = tomllib.loads(resource_folder.joinpath("config.toml").read_text())
 
