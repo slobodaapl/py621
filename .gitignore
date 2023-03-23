@@ -6,9 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-# github stuff
-.github/
-
 # Distribution / packaging
 .Python
 build/
