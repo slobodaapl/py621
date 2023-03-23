@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "py621dl"
-version = "0.1a1.dev0"
+version = "0.0.1"
 description = "A downloader for e621.net with meant for iterability, using e621 db post exports, designed for deep learning."
 authors = ["slobodaapl <slobodaapl@gmail.com>"]
 homepage = "https://pypi.org/project/py621dl"
@@ -31,7 +31,10 @@ pytest-cov = "*"
 pytest = "*"
 pytest-dependency = "*"
 pytest-order = "*"
+flake8 = "*"
 
+[tool.poetry.group.deploy.dependencies]
+python-semantic-release = "*"
 
 [build-system]
 requires = ["poetry-core"]
@@ -48,3 +51,14 @@ downloader = "py621dl.reader:E621Reader"
 
 [project.entry-points.setup]
 downloader = "py621dl.__init__:enable_logging"
+
+[tool.semantic_release]
+version_variable = "pyproject.toml:version" # version location
+branch = "main"                             # branch to make releases of
+changelog_file = "CHANGELOG.md"             # changelog file
+build_command = "poetry build"              # build dists
+dist_path = "dist/"                         # where to put dists
+upload_to_release = true                    # auto-create GitHub release
+upload_to_pypi = false                      # don't auto-upload to PyPI
+remove_dist = false                         # don't remove dists
+patch_without_tag = true                    # patch release by default
