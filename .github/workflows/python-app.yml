@@ -9,8 +9,6 @@ on:
       - main
   pull_request:
 
-permissions: read-all|write-all
-
 jobs:
   build:
     runs-on: ubuntu-latest
