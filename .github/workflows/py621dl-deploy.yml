@@ -48,13 +48,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: poetry install --with deploy
-      - name: Prepare package for release
-        env:
-          GH_TOKEN: ${{ secrets.SEMANTIC_TOKEN }}
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          poetry run semantic-release publish
+      - name: Build lib
+        run: poetry build
       - name: Publish package to PYPI
-        run: |
-          poetry publish -u ${{ secrets.PYPIUSER }} -p ${{ secrets.PYPIPASS }}
+        run: poetry publish -u ${{ secrets.PYPIUSER }} -p ${{ secrets.PYPIPASS }}
