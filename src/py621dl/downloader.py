@@ -1,10 +1,11 @@
 # downloader.py
 from __future__ import annotations
 
-import functools
 import logging
-import multiprocessing
-from typing import Tuple, Callable
+import threading
+from multiprocessing import cpu_count
+from queue import Queue
+from typing import Tuple, Callable, NoReturn
 
 from numpy import ndarray, array
 from pandas import Series
@@ -22,13 +23,27 @@ class E621Downloader:
                  *,
                  image_transforms: Callable = None,
                  timeout: NUMERIC | Tuple[NUMERIC, NUMERIC] = 5,
-                 retries: int = 3):
+                 retries: int = 3,
+                 num_workers: int = cpu_count()) -> None:
 
         self.reader = csv_reader
         self.image_transforms = image_transforms
         self.batch_size = self.reader.batch_size
         self.timeout = timeout
         self.retries = retries
+        self.num_workers = num_workers
+        self.img_list = []
+        self.processing_queue = Queue()
+        self.threads = [threading.Thread(
+            target=self.worker, args=(self.processing_queue,), daemon=True
+        ).start() for _ in range(min(cpu_count(), self.batch_size))]
+        
+    def worker(self, src_queue: Queue) -> NoReturn:
+        while True:
+            md5 = src_queue.get(block=True)
+            img = get_image(md5, timeout=self.timeout, retries=self.retries)
+            self.img_list.append(img)
+            src_queue.task_done()
 
     def __iter__(self) -> E621Downloader:
         return self
@@ -43,21 +58,16 @@ class E621Downloader:
                     batch = self.reader.get_rows(self.batch_size - len(images))
                 else:
                     batch = next(self.reader)
+                    
+                for row in batch:
+                    self.processing_queue.put(row['md5'])
+                
+                self.processing_queue.join()
 
-                if self.batch_size > 2:
-                    with multiprocessing.Pool(processes=min(multiprocessing.cpu_count(), self.batch_size)) as pool:
-                        images_temp = pool.map_async(
-                            functools.partial(get_image, timeout=self.timeout, retries=self.retries),
-                            [row['md5'] for row in batch]
-                        )
-
-                        images_temp.wait()
-                        images_temp = images_temp.get()
-                else:
-                    images_temp = [get_image(row['md5'], timeout=self.timeout, retries=self.retries) for row in batch]
-
-                exc = [e for e in images_temp if isinstance(e, Exception)]
-                img = {i: img for i, img in enumerate(images_temp) if isinstance(img, ndarray)}
+                exc = [e for e in self.img_list if isinstance(e, Exception)]
+                img = {i: img for i, img in enumerate(self.img_list) if isinstance(img, ndarray)}
+                
+                self.img_list = []
 
                 if exc:
                     exc = ExceptionGroup("One or more downloads failed", exc)

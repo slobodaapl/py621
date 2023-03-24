@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "py621dl"
-version = "0.0.1"
+version = "0.0.0"
 description = "A downloader for e621.net with meant for iterability, using e621 db post exports, designed for deep learning."
 authors = ["slobodaapl <slobodaapl@gmail.com>"]
 homepage = "https://pypi.org/project/py621dl"
@@ -10,7 +10,7 @@ repository = "https://github.com/slobodaapl/py621dl"
 license = "GPL-3.0-or-later"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Natural Language :: English",
@@ -18,20 +18,21 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.11"
-pandas = "*"
-requests = "*"
-numpy = "*"
-Pillow = "*"
-opencv-python = "*"
+python = "3.11.2"
+pandas = "1.5.3"
+requests = "2.27.1"
+numpy = "1.24.2"
+Pillow = "9.4.0"
+opencv-python = "4.7.0.72"
 
 [tool.poetry.group.dev.dependencies]
-pytest-socket = "*"
-pytest-cov = "*"
-pytest = "*"
-pytest-dependency = "*"
-pytest-order = "*"
-flake8 = "*"
+pytest = "7.2.2"
+pytest-socket = "0.6.0"
+pytest-cov = "4.0.0"
+pytest-dependency = "0.5.1"
+pytest-order = "1.1.0"
+pytest-timeout = "2.1.0"
+flake8 = "6.0.0"
 
 [tool.poetry.group.deploy.dependencies]
 python-semantic-release = "*"
@@ -41,7 +42,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = "--disable-socket --allow-unix-socket"
+addopts = "--disable-socket --allow-unix-socket --timeout 50"
 
 [project.entry-points.net]
 downloader = "py621dl.downloader:E621Downloader"
