@@ -12,7 +12,7 @@ __NUMERIC = Union[int, float]
 # Setup
 logging.getLogger().disabled = True
 
-__version__ = "0.0.1"
+__version__ = "0.0.0"
 resource_folder = resources.files("py621dl")
 
 _cfg = tomllib.loads(resource_folder.joinpath("config.toml").read_text())

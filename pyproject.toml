@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "py621dl"
-version = "0.0.1"
+version = "0.0.0"
 description = "A downloader for e621.net with meant for iterability, using e621 db post exports, designed for deep learning."
 authors = ["slobodaapl <slobodaapl@gmail.com>"]
 homepage = "https://pypi.org/project/py621dl"
@@ -10,7 +10,7 @@ repository = "https://github.com/slobodaapl/py621dl"
 license = "GPL-3.0-or-later"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Natural Language :: English",
